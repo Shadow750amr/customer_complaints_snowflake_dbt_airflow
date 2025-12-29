@@ -1,2 +1,4 @@
 .DS_Store
 datawh_certification.code-workspace
+complaints_data.csv
+.env
