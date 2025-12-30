@@ -53,7 +53,8 @@ def upload_only():
         COPY INTO {database}.{schema}.bronze_complaints
         FROM @{database}.{schema}.{stage_name}
         FILE_FORMAT = 'CSV'
-        MATCH_BY_COLUMN_NAME = CASE_INSENSITIVE;
+        MATCH_BY_COLUMN_NAME = CASE_INSENSITIVE
+        ;
         """
         cursor.execute(load_data_query)
         
