@@ -35,4 +35,9 @@ models:
     raw:
       +materialized: view
       +snowflake_warehouse: dbt_wh
+      +schema: bronze
+    silver:
+      +materialized: table
+      +snowflake_warehouse: dbt_wh
+      +schema: silver
       

@@ -1,5 +1,30 @@
-.DS_Store
+
 datawh_certification.code-workspace
-complaints_data.csv
+# --- dbt Específicos ---
+target/
+logs/
+dbt_packages/
+dbt_modules/
+
+# --- Python y Entornos
+.venv/
+venv/
+env/
+bin/
+lib/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.python-version
+
+
+*.db
+*.sqlite
+*.sqlite3
+*.csv
+*.xlsx
+
+# --- Configuración y Secretos ---
+profiles.yml
 .env
-.venv
+.DS_Store
