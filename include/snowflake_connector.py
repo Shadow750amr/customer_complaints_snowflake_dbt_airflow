@@ -1,11 +1,12 @@
 import snowflake.connector                                #  Standard import to handle snowflake connections
-#from snowflake.connector import SnowflakeConnection          # this was imported to define the connection return which is indeed a SnowflakeConnection
+from snowflake.connector import SnowflakeConnection       # this was imported to define the connection return which is indeed a SnowflakeConnection
 import os
 import logging
 from typing import Optional,Dict
 
+logger = logging.getLogger(__name__) # Definiciòn del logger
+
 class SnowflakeConnector:
-    logger = logging.getLogger(__name__) # Definiciòn del logger
 
     def __init__(self, user: str, account: str, warehouse: str, 
                  database: str, schema: str, password: Optional[str] = None) -> None:
@@ -20,16 +21,15 @@ class SnowflakeConnector:
         }
         self.conn = None
 
-    #def _get_connection(self) -> SnowflakeConnection:          #Lazy initialization
-    #   if self.conn is None:
-    #      self.conn = snowflake.connector.connect(**self.conn_params)         # ** to return the list of arguments listed above with no mistakes
-    #  return self.conn
+    def _get_connection(self) -> SnowflakeConnection:          #Lazy initialization
+        if self.conn is None:
+            self.conn = snowflake.connector.connect(**self.conn_params)         # ** to return the list of arguments listed above with no mistakes
+        return self.conn
 
     def upload_to_stage(self, local_path: str, stage_name: str):
-        conn = self.conn.snowflake.connector.connect(**self.conn_params)
-        cursor = conn.cursor()
+        cursor = self._get_connection().cursor()
         try:
-            self.logger.info(f"Subiendo {local_path} al stage {stage_name}...")
+            logger.info(f"Subiendo {local_path} al stage {stage_name}...")
             put_query = f"PUT file://{local_path} @{stage_name} OVERWRITE = TRUE"
             cursor.execute(put_query)
         finally:
@@ -37,15 +37,15 @@ class SnowflakeConnector:
 
     def ingest_from_stage(self, table_name: str, stage_name: str):
         """Paso 2: COPY INTO - Mueve los datos del stage a la tabla"""
-        conn = self.conn.snowflake.connector.connect(**self.conn_params)
-        cursor = conn.cursor()
+        cursor = self._get_connection().cursor()
         try:
-            self.logger.info(f"Cargando datos en la tabla {table_name}...")
-            copy_query = f"""
+            logger.info(f"Cargando datos en la tabla {table_name}...")
+            copy_query =f"""
             COPY INTO {table_name}
             FROM @{stage_name}
             FILE_FORMAT = 'CSV'
-            MATCH_BY_COLUMN_NAME = CASE_INSENSITIVE;
+            MATCH_BY_COLUMN_NAME = CASE_INSENSITIVE
+            PURGE = TRUE;
             """ 
             cursor.execute(copy_query)
         finally:
@@ -91,3 +91,14 @@ if __name__ == "__main__":
     finally:
         # 4. Limpiar la conexión (muy importante en Snowflake para no gastar créditos)
         sf.close()
+
+
+
+'''
+CREATE TABLE my_inferred_table
+USING TEMPLATE (
+    SELECT ARRAY_AGG(OBJECT_CONSTRUCT(*))
+    FROM TABLE(
+        INFER_SCHEMA(LOCATION => '@my_stage', FILE_FORMAT => 'my_file_format')
+    )
+);'''
