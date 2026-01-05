@@ -6,9 +6,11 @@ USE ROLE ACCOUNTADMIN;
 
 --- Creating the dbt_wh to do the transformations
 
+DROP WAREHOUSE DBT_WH;
 CREATE WAREHOUSE DBT_WH WITH warehouse_size = 'x-small' auto_suspend = 60;
 
 
+DROP DATABASE COMPLAINTS_DB;
 --- Creating the database (where all the transformations happen)
 CREATE DATABASE COMPLAINTS_DB;
 
@@ -20,6 +22,8 @@ CREATE SCHEMA COMPLAINTS_SILVER;
 
 CREATE SCHEMA COMPLAINTS_GOLD;
 
+
+DROP ROLE DBT_ROLE;
 --- Creating the role to do the transformations
 CREATE ROLE DBT_ROLE;
 
@@ -58,7 +62,7 @@ GRANT ALL PRIVILEGES ON SCHEMA COMPLAINTS_DB.COMPLAINTS_GOLD TO ROLE DBT_ROLE;
 
 -- Finally grant role to users
 
-GRANT ROLE DBT_ROLE TO USER SHADOW75098;
+GRANT ROLE DBT_ROLE TO USER SHADOW750098;
 
 -- Btw we have to create the format
 CREATE OR REPLACE FILE FORMAT COMPLAINTS_RAW.CSV
