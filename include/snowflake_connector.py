@@ -8,6 +8,13 @@ logger = logging.getLogger(__name__) # Definiciòn del logger
 
 class SnowflakeConnector:
 
+    ''' This class helps define a connection to snowflake using the following methods:
+        _get_connection: lazy initialization to define a connection to snowflake
+        upload_to_stage: this uploads the csv to the stage
+        ingest_from_stage: this get the uploaded csv and then transport it to the defined table (raw table in bronze layer)
+        create_table: this creates the bronze raw table based on the table schema from the stage
+        close: this closes the connection to snowflake making sure there is no active connection (really important to switch off the wh)  '''
+
     def __init__(self, user: str, account: str, warehouse: str, 
                  database: str, schema: str, password: Optional[str] = None) -> None:
         
@@ -26,7 +33,7 @@ class SnowflakeConnector:
             self.conn = snowflake.connector.connect(**self.conn_params)         # ** to return the list of arguments listed above with no mistakes
         return self.conn
 
-    def upload_to_stage(self, local_path: str, stage_name: str):
+    def upload_to_stage(self, local_path: str, stage_name: str) -> str:
         cursor = self._get_connection().cursor()
         try:
             logger.info(f"Subiendo {local_path} al stage {stage_name}...")
@@ -34,18 +41,41 @@ class SnowflakeConnector:
             cursor.execute(put_query)
         finally:
             cursor.close()
-
-    def ingest_from_stage(self, table_name: str, stage_name: str):
-        """Paso 2: COPY INTO - Mueve los datos del stage a la tabla"""
+    
+    def create_table(self,table_name: str, stage_name: str) -> str:
         cursor = self._get_connection().cursor()
         try:
-            logger.info(f"Cargando datos en la tabla {table_name}...")
+            logger.info("Creando tabla base")
+            create_query = f"""
+            CREATE OR REPLACE TABLE {table_name}
+            USING TEMPLATE (
+                SELECT ARRAY_AGG(OBJECT_CONSTRUCT(*))
+                FROM TABLE(
+                    INFER_SCHEMA(
+                        LOCATION => '@{stage_name}',
+                        FILE_FORMAT => 'CSV'
+                    )
+                )
+            )
+            """
+            cursor.execute(create_query)
+        except Exception as e:
+            logger.error(f"No hay tabla {e}")
+                    
+        finally:
+            cursor.close()
+
+    def ingest_from_stage(self, table_name: str, stage_name: str) -> str:
+
+        cursor = self._get_connection().cursor()
+        try:
+            logger.info(f"Cargando datos a la tabla {table_name}...")
             copy_query =f"""
             COPY INTO {table_name}
             FROM @{stage_name}
-            FILE_FORMAT = 'CSV'
-            MATCH_BY_COLUMN_NAME = CASE_INSENSITIVE
-            PURGE = TRUE;
+            FILE_FORMAT = (
+            FORMAT_NAME = 'CSV')
+            MATCH_BY_COLUMN_NAME = CASE_INSENSITIVE;
             """ 
             cursor.execute(copy_query)
         finally:
@@ -55,14 +85,16 @@ class SnowflakeConnector:
         if self.conn:
             self.conn.close()
 
+
+
+
 if __name__ == "__main__":
-    # 1. Configurar el logging para ver qué pasa en la consola
+    
     logging.basicConfig(level=logging.INFO)
     from dotenv import load_dotenv
     load_dotenv()
 
-    # 2. Instanciar la clase con las variables de entorno
-    # Esto simula lo que haría un Operador de Airflow
+
     sf = SnowflakeConnector(
         user=os.getenv('SNOWFLAKE_USER'),
         account=os.getenv('SNOWFLAKE_ACCOUNT'),
@@ -72,15 +104,15 @@ if __name__ == "__main__":
     )
 
     try:
-        # 3. Ejecutar el flujo paso a paso
+     
         path_archivo = os.getenv('LOCAL_FILE_PATH')
         nombre_stage = os.getenv('SNOWFLAKE_STAGE_NAME')
-        tabla_destino = "bronze_complaints"
+        tabla_destino = "COMPLAINTS_DB.COMPLAINTS_RAW.BRONZE_COMPLAINTS"
 
-        # Paso A: Subir al Stage
         sf.upload_to_stage(path_archivo, nombre_stage)
 
-        # Paso B: Cargar a la tabla
+        sf.create_table(tabla_destino, nombre_stage)
+        
         sf.ingest_from_stage(tabla_destino, nombre_stage)
         
         print("--- PRUEBA FINALIZADA CON ÉXITO ---")
@@ -89,16 +121,8 @@ if __name__ == "__main__":
         print(f"--- LA PRUEBA FALLÓ: {e} ---")
     
     finally:
-        # 4. Limpiar la conexión (muy importante en Snowflake para no gastar créditos)
+        
         sf.close()
 
 
 
-'''
-CREATE TABLE my_inferred_table
-USING TEMPLATE (
-    SELECT ARRAY_AGG(OBJECT_CONSTRUCT(*))
-    FROM TABLE(
-        INFER_SCHEMA(LOCATION => '@my_stage', FILE_FORMAT => 'my_file_format')
-    )
-);'''
