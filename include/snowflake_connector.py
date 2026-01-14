@@ -4,7 +4,11 @@ import os
 import logging
 from typing import Optional,Dict
 
-logger = logging.getLogger(__name__) # Definiciòn del logger
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s | %(levelname)-8s | %(name)s | %(funcName)s:%(lineno)d - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 
 class SnowflakeConnector:
 
@@ -27,6 +31,7 @@ class SnowflakeConnector:
             "schema": schema
         }
         self.conn = None
+        self.logger = logging.getLogger(__name__) # Definiciòn del logger
 
     def _get_connection(self) -> SnowflakeConnection:          #Lazy initialization
         if self.conn is None:
@@ -36,7 +41,7 @@ class SnowflakeConnector:
     def upload_to_stage(self, local_path: str, stage_name: str) -> str:
         cursor = self._get_connection().cursor()
         try:
-            logger.info(f"Subiendo {local_path} al stage {stage_name}...")
+            self.logger.info(f"Subiendo {local_path} al stage {stage_name}...")
             put_query = f"PUT file://{local_path} @{stage_name} OVERWRITE = TRUE"
             cursor.execute(put_query)
         finally:
@@ -45,7 +50,7 @@ class SnowflakeConnector:
     def create_table(self,table_name: str, stage_name: str) -> str:
         cursor = self._get_connection().cursor()
         try:
-            logger.info("Creando tabla base")
+            self.logger.info("Creando tabla base")
             create_query = f"""
             CREATE OR REPLACE TABLE {table_name}
             USING TEMPLATE (
@@ -60,7 +65,7 @@ class SnowflakeConnector:
             """
             cursor.execute(create_query)
         except Exception as e:
-            logger.error(f"No hay tabla {e}")
+            self.logger.error(f"Error creando tabla {e}")
                     
         finally:
             cursor.close()
@@ -69,7 +74,7 @@ class SnowflakeConnector:
 
         cursor = self._get_connection().cursor()
         try:
-            logger.info(f"Cargando datos a la tabla {table_name}...")
+            self.logger.info(f"Cargando datos a la tabla {table_name}...")
             copy_query =f"""
             COPY INTO {table_name}
             FROM @{stage_name}
@@ -107,7 +112,7 @@ if __name__ == "__main__":
      
         path_archivo = os.getenv('LOCAL_FILE_PATH')
         nombre_stage = os.getenv('SNOWFLAKE_STAGE_NAME')
-        tabla_destino = "COMPLAINTS_DB.COMPLAINTS_RAW.BRONZE_COMPLAINTS"
+        tabla_destino = os.getenv("SNOWFLAKE_TABLE_NAME")
 
         sf.upload_to_stage(path_archivo, nombre_stage)
 
