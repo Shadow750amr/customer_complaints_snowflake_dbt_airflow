@@ -2,4 +2,4 @@
 
 select
 *    
-from {{source('silver','complaints_stage')}}
+from {{ref('complaints_stage')}}

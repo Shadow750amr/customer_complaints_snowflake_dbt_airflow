@@ -1,8 +1,0 @@
-version: 2
-
-sources : 
-  - name: silver
-    database: complaints_db
-    schema: dev_bronze
-    tables:
-      - name: complaints_stage

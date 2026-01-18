@@ -1,7 +1,9 @@
 
+    
     select
     cast("expediente" as string) as expediente,
     to_date("fecha_ingreso", 'YYYY/MM/DD') as fecha_ingreso,
+    "estado" as estado,
     --- columna de auditoría
     current_timestamp() as updated_at
     from
