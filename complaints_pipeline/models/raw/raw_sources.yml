@@ -1,8 +1,0 @@
-version : 2
-
-sources : 
-  - name: raw
-    database: complaints_db
-    schema: complaints_bronze
-    tables:
-      - name: bronze_complaints
