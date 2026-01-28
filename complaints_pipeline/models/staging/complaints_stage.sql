@@ -20,6 +20,6 @@
     )
 
     select *,
-    {{dbt_utils.generate_surrogate_key(['expediente','fecha_ingreso','estado_procesal']) }} as s_key_main
+    {{dbt_utils.generate_surrogate_key(['expediente','fecha_ingreso','estado_procesal']) }} as s_key_main ---this is actually not working because of the duplicates
     from cleansed_data
   

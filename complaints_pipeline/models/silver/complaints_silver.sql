@@ -1,7 +1,11 @@
-{{config(materialized='incremental',incremental_strategy='merge',unique_key='s_key_main',on_schema_change='append_new_columns')}}
+{{config(materialized='table')}}
 
 select
-*
-from {{ref('complaints_stage')}}
+stage.*,
+    dim_zonas.dim_zonas_key
+FROM {{ref('complaints_stage')}} stage
+JOIN {{ref('dim_zonas')}} dim_zonas
+ON dim_zonas.area_responsable = stage.area_responsable
+AND is_current = 1
 
 
