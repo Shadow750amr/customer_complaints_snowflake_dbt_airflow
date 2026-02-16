@@ -13,3 +13,6 @@ with duplicates as (
 )
 
 SELECT *, {{dbt_utils.generate_surrogate_key(['area_responsable','estado'])}} as s_key_estado FROM duplicates WHERE row_num = 1
+
+
+
