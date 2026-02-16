@@ -6,11 +6,11 @@ USE ROLE ACCOUNTADMIN;
 
 --- Creating the dbt_wh to do the transformations
 
-DROP WAREHOUSE DBT_WH;
+DROP WAREHOUSE IF EXISTS DBT_WH;
 CREATE WAREHOUSE DBT_WH WITH warehouse_size = 'x-small' auto_suspend = 60;
 
 
-DROP DATABASE COMPLAINTS_DB;
+DROP DATABASE IF EXISTS COMPLAINTS_DB;
 --- Creating the database (where all the transformations happen)
 CREATE DATABASE COMPLAINTS_DB;
 
@@ -23,7 +23,7 @@ CREATE SCHEMA COMPLAINTS_SILVER;
 CREATE SCHEMA COMPLAINTS_GOLD;
 
 
-DROP ROLE DBT_ROLE;
+DROP ROLE IF EXISTS DBT_ROLE;
 --- Creating the role to do the transformations
 CREATE ROLE DBT_ROLE;
 
