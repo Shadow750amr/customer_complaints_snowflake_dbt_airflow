@@ -13,4 +13,16 @@ Frameworks / Connectors: Snowflake connector for python, dbt-core, dbt-snowflake
 
 
 
+Hot to use it:
+
+1. Donwload the repo using clone.
+2. Download the dependencies using dbt deps
+3. Create your profiles.yml at home/user/.dbt/profiles.yml usign the following structure:
+
+4. You are good to go.
+
+
+
+
+
 
