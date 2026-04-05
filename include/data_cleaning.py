@@ -1,9 +1,12 @@
 import pandas as pd
 import logging
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 
 # Defining the path where the csv is located at
-PATH = '/Users/shadow750/Documents/datawh_certification/complaints_data.csv'
+PROCESSED_CSV = os.getenv('PROCESSED_CSV')
 
 # Defining the columns for further transformations
 TEXT_COLUMNS = [
@@ -47,7 +50,7 @@ class DataCleaning:
 
 
 if __name__ == "__main__":
-    data = DataCleaning(PATH,TEXT_COLUMNS,DATE_COLUMNS)
+    data = DataCleaning(PROCESSED_CSV,TEXT_COLUMNS,DATE_COLUMNS)
     final_df = data.clean_data()
     print(final_df.head(5))
 
