@@ -13,13 +13,13 @@
     "estado" as estado,
     "motivo_reclamacion" as motivo_reclamacion,
     --- columna de auditoría
-    current_timestamp() as updated_at
+    current_timestamp() as fecha_actualizacion,
+    ROW_NUMBER() OVER(ORDER BY expediente) as  num_observacion
       from
     {{ source('complaints_bronze', 'bronze_complaints') }}    
     
     )
 
-    select *,
-    {{dbt_utils.generate_surrogate_key(['expediente','fecha_ingreso','estado_procesal']) }} as s_key_main ---this is actually not working because of the duplicates
+    select *
     from cleansed_data
   
