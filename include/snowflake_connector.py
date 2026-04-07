@@ -3,6 +3,8 @@ from snowflake.connector import SnowflakeConnection       # this was imported to
 import os
 import logging
 from typing import Optional,Dict
+from dotenv import load_dotenv
+load_dotenv()
 
 logging.basicConfig(
     level=logging.INFO,
@@ -85,6 +87,7 @@ class SnowflakeConnector:
             cursor.execute(copy_query)
         finally:
             cursor.close()
+            self.logger.info("Proceso finalizado.")
 
     def close(self):
         if self.conn:
@@ -94,10 +97,6 @@ class SnowflakeConnector:
 
 
 if __name__ == "__main__":
-    
-    logging.basicConfig(level=logging.INFO)
-    from dotenv import load_dotenv
-    load_dotenv()
 
 
     sf = SnowflakeConnector(
@@ -108,26 +107,17 @@ if __name__ == "__main__":
         schema=os.getenv('SNOWFLAKE_SCHEMA')
     )
 
-    try:
-     
-        path_archivo = os.getenv('LOCAL_FILE_PATH')
-        nombre_stage = os.getenv('SNOWFLAKE_STAGE_NAME')
-        tabla_destino = os.getenv("SNOWFLAKE_TABLE_NAME")
+    path_archivo = os.getenv('LOCAL_FILE_PATH')
+    nombre_stage = os.getenv('SNOWFLAKE_STAGE_NAME')
+    tabla_destino = os.getenv("SNOWFLAKE_TABLE_NAME")
 
-        sf.upload_to_stage(path_archivo, nombre_stage)
+    sf.upload_to_stage(path_archivo, nombre_stage)
 
-        sf.create_table(tabla_destino, nombre_stage)
-        
-        sf.ingest_from_stage(tabla_destino, nombre_stage)
-        
-        print("--- PRUEBA FINALIZADA CON ÉXITO ---")
-
-    except Exception as e:
-        print(f"--- LA PRUEBA FALLÓ: {e} ---")
+    sf.create_table(tabla_destino, nombre_stage)
     
-    finally:
-        
-        sf.close()
+    sf.ingest_from_stage(tabla_destino, nombre_stage)
+
+    sf.close()
 
 
 
