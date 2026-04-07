@@ -1,12 +1,22 @@
 import requests
 import logging
+from dotenv import load_dotenv
+load_dotenv()
 
- 
-logger = logging.getLogger(__name__) #tracking
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler("app.log", mode='w'),
+        logging.StreamHandler() # Para ver logs en consola simultáneamente
+    ]
+)
+logger = logging.getLogger(__name__)
+
 
 URL = 'https://repodatos.atdt.gob.mx/api_update/profeco/quejas_buro_comercial/buro_comercial_2019_2025.csv'
 CSV_NAME = 'complaints_data.csv'
-
 
 class Extraction:
     '''
