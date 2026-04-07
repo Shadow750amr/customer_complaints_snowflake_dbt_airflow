@@ -3,24 +3,25 @@ import logging
 import os
 from dotenv import load_dotenv
 load_dotenv()
+from utils.formats import TEXT_COLUMNS,DATE_COLUMNS
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler("app.log", mode='w'),
+        logging.StreamHandler() # Para ver logs en consola simultáneamente
+    ]
+)
+logger = logging.getLogger(__name__)
 
 
 # Defining the path where the csv is located at
 PROCESSED_CSV = os.getenv('PROCESSED_CSV')
-
-# Defining the columns for further transformations
-TEXT_COLUMNS = [
-    "expediente", "estado_procesal", "razon_social", 
-    "nombre_comercial", "giro", "sector", 
-    "area_responsable", "estado", "motivo_reclamacion"
-]
-
-DATE_COLUMNS = ["fecha_ingreso"]
-
-logger = logging.getLogger(__name__)
+TEXT_COLUMNS = TEXT_COLUMNS
+DATE_COLUMNS = DATE_COLUMNS
 
 class DataCleaning:
-    
 
     def __init__(self,path:str,text_cols:list,date_cols:list) -> None:
         self.path = path
