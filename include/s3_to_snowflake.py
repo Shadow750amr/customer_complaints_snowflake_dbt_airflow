@@ -39,15 +39,6 @@ class SnowflakeConnector:
         if self.conn is None:
             self.conn = snowflake.connector.connect(**self.conn_params)         # ** to return the list of arguments listed above with no mistakes
         return self.conn
-
-    def upload_to_stage(self, local_path: str, stage_name: str) -> str:
-        cursor = self._get_connection().cursor()
-        try:
-            self.logger.info(f"Subiendo {local_path} al stage {stage_name}...")
-            put_query = f"PUT file://{local_path} @{stage_name} OVERWRITE = TRUE"
-            cursor.execute(put_query)
-        finally:
-            cursor.close()
     
     def create_table(self,table_name: str, stage_name: str) -> str:
         cursor = self._get_connection().cursor()
@@ -107,11 +98,9 @@ if __name__ == "__main__":
         schema=os.getenv('SNOWFLAKE_SCHEMA')
     )
 
-    path_archivo = os.getenv('LOCAL_FILE_PATH')
+    
     nombre_stage = os.getenv('SNOWFLAKE_STAGE_NAME')
-    tabla_destino = os.getenv("SNOWFLAKE_TABLE_NAME")
-
-    sf.upload_to_stage(path_archivo, nombre_stage)
+    tabla_destino = os.getenv('SNOWFLAKE_TABLE_NAME')
 
     sf.create_table(tabla_destino, nombre_stage)
     
