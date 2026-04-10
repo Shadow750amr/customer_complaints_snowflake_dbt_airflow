@@ -1,0 +1,2 @@
+2026-04-09 17:41:27,413 - INFO - Initializing upload stage to S3.
+2026-04-09 17:41:27,439 - INFO - Found credentials in shared credentials file: ~/.aws/credentials
