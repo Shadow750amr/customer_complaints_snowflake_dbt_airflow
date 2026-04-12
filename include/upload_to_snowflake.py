@@ -62,8 +62,6 @@ class UploadToSnowflake(SnowflakeConnector):
             self.conn.close()
 
 
-
-
 if __name__ == "__main__":
     
     uploader = UploadToSnowflake(
