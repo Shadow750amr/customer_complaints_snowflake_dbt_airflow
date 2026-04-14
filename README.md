@@ -1,15 +1,16 @@
-# Consumer complaints against commercial businesses. ELT using airflow, dbt and snowflake.
+# Consumer complaints against commercial businesses. ELT using python, airflow, Amazon S3, dbt and snowflake.
+
 This repository aims to analyze complaints against commercial businesses in México.
 
 The data was acquired using the national open data platform, hosted by the mexican government.
 
-This project was designed to be a demonstration of the wide use of frameworks and tools through a comprensive ELT pipeline following (at most) the state of the arts tools and data engineering tendencies, framework and platforms such as:
+This project was designed to be a demonstration of the wide use of cloud frameworks and tools where every piece (the tool itself) has its own challenges in design and implementation. This ELT pipeline follows (at least) the following state of the arts tools and data engineering tendencies, framework and platforms:
 
-Orchestration: Airflow, cosmos.
+Extraction: Python.
 Transformation: DBT
 Warehousing: Snowflake
-Programing languages: Python
-Frameworks / Connectors: Snowflake connector for python, dbt-core, dbt-snowflake, pandas, among others.
+Storage: Amazon S3
+Orchestration: Airflow (astronomer-cosmos).
 
 
 

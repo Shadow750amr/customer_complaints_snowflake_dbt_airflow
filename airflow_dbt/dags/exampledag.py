@@ -15,7 +15,7 @@ profile_config = ProfileConfig(
         conn_id="snowflake_conn", # Asegúrate de que este ID exista en Airflow Connections
         profile_args={
             "database": "COMPLAINTS_DB", 
-            "schema": "COMPLAINTS_BRONZE"
+            "schema": "DEV"
         },
     ),
 )
