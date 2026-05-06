@@ -1,6 +1,6 @@
 import os
 import logging
-from include.snowflake_connector import SnowflakeConnector
+from airflow_dbt.utils.snowflake_connector import SnowflakeConnector
 from dotenv import load_dotenv
 load_dotenv()
 

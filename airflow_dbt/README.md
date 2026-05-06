@@ -1,45 +1,107 @@
-Overview
-========
+# Consumer complaints against commercial businesses. ELT using python, airflow, Amazon S3, dbt and snowflake.
 
-Welcome to Astronomer! This project was generated after you ran 'astro dev init' using the Astronomer CLI. This readme describes the contents of the project, as well as how to run Apache Airflow on your local machine.
+This repository aims to analyze complaints against commercial businesses in México.
 
-Project Contents
-================
+The data was acquired using the national open data platform, hosted by the mexican government.
 
-Your Astro project contains the following files and folders:
+This project was designed to be a demonstration of the wide use of cloud frameworks and tools where every piece (the tool itself) has its own challenges in design and implementation. This ELT pipeline follows (at least) the following state of the arts tools and data engineering tendencies, framework and platforms:
 
-- dags: This folder contains the Python files for your Airflow DAGs. By default, this directory includes one example DAG:
-    - `example_astronauts`: This DAG shows a simple ETL pipeline example that queries the list of astronauts currently in space from the Open Notify API and prints a statement for each astronaut. The DAG uses the TaskFlow API to define tasks in Python, and dynamic task mapping to dynamically print a statement for each astronaut. For more on how this DAG works, see our [Getting started tutorial](https://www.astronomer.io/docs/learn/get-started-with-airflow).
-- Dockerfile: This file contains a versioned Astro Runtime Docker image that provides a differentiated Airflow experience. If you want to execute other commands or overrides at runtime, specify them here.
-- include: This folder contains any additional files that you want to include as part of your project. It is empty by default.
-- packages.txt: Install OS-level packages needed for your project by adding them to this file. It is empty by default.
-- requirements.txt: Install Python packages needed for your project by adding them to this file. It is empty by default.
-- plugins: Add custom or community plugins for your project to this file. It is empty by default.
-- airflow_settings.yaml: Use this local-only file to specify Airflow Connections, Variables, and Pools instead of entering them in the Airflow UI as you develop DAGs in this project.
+Extraction: Python.
+Transformation: DBT
+Warehousing: Snowflake
+Storage: Amazon S3
+Orchestration: Airflow (astronomer-cosmos).
 
-Deploy Your Project Locally
-===========================
 
-Start Airflow on your local machine by running 'astro dev start'.
 
-This command will spin up five Docker containers on your machine, each for a different Airflow component:
+# S3 integration with snowflake
 
-- Postgres: Airflow's Metadata Database
-- Scheduler: The Airflow component responsible for monitoring and triggering tasks
-- DAG Processor: The Airflow component responsible for parsing DAGs
-- API Server: The Airflow component responsible for serving the Airflow UI and API
-- Triggerer: The Airflow component responsible for triggering deferred tasks
+To create the storage integration with snowflake:
 
-When all five containers are ready the command will open the browser to the Airflow UI at http://localhost:8080/. You should also be able to access your Postgres Database at 'localhost:5432/postgres' with username 'postgres' and password 'postgres'.
+1. Create a new policy in AWS with the following permissions:
 
-Note: If you already have either of the above ports allocated, you can either [stop your existing Docker containers or change the port](https://www.astronomer.io/docs/astro/cli/troubleshoot-locally#ports-are-not-available-for-my-local-airflow-webserver).
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "Statement1",
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetObject",
+                "s3:GetObjectVersion",
+                "s3:ListBucket",
+                "s3:GetBucketLocation"
+            ],
+            "Resource": "your arn bucket"
+        }
+    ]
+}
 
-Deploy Your Project to Astronomer
-=================================
+2. Create a role in AWS to which the policie will be attached to.
 
-If you have an Astronomer account, pushing code to a Deployment on Astronomer is simple. For deploying instructions, refer to Astronomer documentation: https://www.astronomer.io/docs/astro/deploy-code/
+3. Create the storage integration in snowflake with the following settings:
 
-Contact
-=======
+CREATE OR REPLACE STORAGE INTEGRATION your_integration_name
+  TYPE = EXTERNAL_STAGE
+  STORAGE_PROVIDER = 'S3'
+  ENABLED = TRUE
+  STORAGE_AWS_ROLE_ARN = 'your_arn_role'
+  STORAGE_ALLOWED_LOCATIONS = ( 'your-bucket-name') ---- structure: s3://bucket-name/
 
-The Astronomer CLI is maintained with love by the Astronomer team. To report a bug or suggest a change, reach out to our support.
+4. Once the integration has been created, execute the DESC INTEGRATION 'your_integration_name' to visualize the integration settings and from which you are going to need:
+- STORAGE_AWS_IAM_USER_ARN
+- STORAGE_AWS_EXTERNAL_ID
+
+5. Change the trust relationships of your role with the following settings:
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "your-snowflake-iam-user-arn"
+            },
+            "Action": "sts:AssumeRole",
+            "Condition": {
+                "StringEquals": {
+                    "sts:ExternalId": "your-aws-external-id"
+                }
+            }
+        }
+    ]
+}
+
+
+6. Finally, create the external stage using your integration storage and:
+
+
+CREATE OR REPLACE STAGE your_external_stage_name
+  STORAGE_INTEGRATION = my-integration-name
+  URL = 'your-s3-bucket/' 
+  FILE_FORMAT = (TYPE = 'CSV' FIELD_DELIMITER = ',' SKIP_HEADER = 1);
+
+7. A good practice is to confirm the stage has been succesfully linked with LIST @your_external_stage_name;
+
+
+
+
+Hot to use it:
+
+1. Donwload the repo using clone.
+2. Download the dependencies using dbt deps
+3. Create your profiles.yml at home/user/.dbt/profiles.yml usign the following structure:
+
+4. You are good to go.
+
+
+
+
+
+
+
+
+
+
+
+
