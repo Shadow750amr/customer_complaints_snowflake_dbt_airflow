@@ -1,5 +1,5 @@
 from cosmos import DbtDag, ProjectConfig, ProfileConfig, ExecutionConfig
-# 1. Cambiamos el import para Snowflake
+
 from cosmos.profiles import SnowflakeUserPasswordProfileMapping 
 
 import os
@@ -10,9 +10,9 @@ airflow_home = os.environ["AIRFLOW_HOME"]
 profile_config = ProfileConfig(
     profile_name="default",
     target_name="dev",
-    # 2. Usamos el mapping de Snowflake
+
     profile_mapping=SnowflakeUserPasswordProfileMapping(
-        conn_id="snowflake_conn", # Asegúrate de que este ID exista en Airflow Connections
+        conn_id="snowflake_conn", 
         profile_args={
             "database": "COMPLAINTS_DB", 
             "schema": "DEV"

@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 URL = 'https://repodatos.atdt.gob.mx/api_update/profeco/quejas_buro_comercial/buro_comercial_2019_2025.csv'
-CSV_NAME = 'complaints_data.csv'
+CSV_NAME = '/usr/local/airflow/include/complaints_data.csv'
 
 class Extraction:
     '''
