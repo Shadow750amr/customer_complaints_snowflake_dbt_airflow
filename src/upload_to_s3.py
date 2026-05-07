@@ -29,7 +29,7 @@ def upload_file(file_name:str, bucket:str, aws_conn_id='aws_default'):
     # Upload the file
     s3_hook = S3Hook(aws_conn_id=aws_conn_id)
     try:
-        response = s3_hook.load_file(filename=file_name,key='aws_file', bucket_name=bucket)
+        response = s3_hook.load_file(filename=file_name,key='aws_file.csv', bucket_name=bucket,replace=True)
     except ClientError as e:
         logging.error(e)
         return False
@@ -37,4 +37,7 @@ def upload_file(file_name:str, bucket:str, aws_conn_id='aws_default'):
     return 
     
 if __name__ == "__main__":
-    upload_file(os.getenv('LOCAL_FILE_PATH'),os.getenv('BUCKET_NAME'))
+    from dotenv import load_dotenv
+    load_dotenv()
+    CSV_NAME = '/Users/shadow750/Documents/datawh_certification/include/complaints_data.csv'
+    upload_file(file_name=CSV_NAME,bucket=os.getenv('BUCKET_NAME'),aws_conn_id='aws_default')

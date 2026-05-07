@@ -15,8 +15,6 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-URL = 'https://repodatos.atdt.gob.mx/api_update/profeco/quejas_buro_comercial/buro_comercial_2019_2025.csv'
-CSV_NAME = '/usr/local/airflow/include/complaints_data.csv'
 
 class Extraction:
     '''
@@ -46,6 +44,9 @@ class Extraction:
             logger.error(f"Error en la descarga: {e}")
 
 if __name__ == "__main__":
+
+    URL = 'https://repodatos.atdt.gob.mx/api_update/profeco/quejas_buro_comercial/buro_comercial_2019_2025.csv'
+    CSV_NAME = '/Users/shadow750/Documents/datawh_certification/include/complaints_data.csv'
     extractor = Extraction(URL, CSV_NAME)
     extractor.connect_and_save()
 
