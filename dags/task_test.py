@@ -1,6 +1,7 @@
 from airflow.decorators import dag,task,task_group
 from src.data_extraction import Extraction
 from src.upload_to_s3 import upload_file
+from src.upload_to_snowflake import UploadToSnowflake
 import datetime
 import os
 
@@ -24,8 +25,26 @@ def complaints_pipeline():
             bucket = os.getenv('BUCKET_NAME'),
             aws_conn_id='aws_default'
         )
-    file_path_output = descarga_archivo()
-    mandar_archivo_s3(file_path_output)
+    
+    @task(task_id="cargar_snowflake")
+    def ingest_to_snowflake():
+        uploader = UploadToSnowflake(
+            user=os.getenv('SNOWFLAKE_USER'),
+            account=os.getenv('SNOWFLAKE_ACCOUNT'),
+            warehouse=os.getenv('SNOWFLAKE_WAREHOUSE'),
+            database=os.getenv('SNOWFLAKE_DATABASE'),
+            schema=os.getenv('SNOWFLAKE_SCHEMA'))
+        uploader.create_table(os.getenv('SNOWFLAKE_TABLE_NAME'),os.getenv('SNOWFLAKE_STAGE_NAME'))
+        result = uploader.ingest_from_stage(os.getenv('SNOWFLAKE_TABLE_NAME'),os.getenv('SNOWFLAKE_STAGE_NAME'))
+        return result.close()
+
+        
+    
+    t1 = descarga_archivo()
+    t2 = mandar_archivo_s3(t1)
+    t3 = ingest_to_snowflake()
+
+    t1 >> t2 >> t3
 
 complaints_pipeline()
 

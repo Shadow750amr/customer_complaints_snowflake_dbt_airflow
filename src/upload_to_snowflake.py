@@ -1,8 +1,7 @@
 import os
 import logging
-from airflow_dbt.utils.snowflake_connector import SnowflakeConnector
-from dotenv import load_dotenv
-load_dotenv()
+from utils.snowflake_connector import SnowflakeConnector
+
 
 logging.basicConfig(
     level=logging.INFO,
@@ -63,7 +62,8 @@ class UploadToSnowflake(SnowflakeConnector):
 
 
 if __name__ == "__main__":
-    
+    from dotenv import load_dotenv
+    load_dotenv()
     uploader = UploadToSnowflake(
         user=os.getenv('SNOWFLAKE_USER'),
         account=os.getenv('SNOWFLAKE_ACCOUNT'),
