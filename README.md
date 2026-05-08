@@ -1,20 +1,67 @@
 # Consumer complaints against commercial businesses. ELT using python, airflow, Amazon S3, dbt and snowflake.
 
-This repository aims to analyze complaints against commercial businesses in México.
+This project was designed to create an end-to-end data engineering pipeline using the consumer complaints dataset from the national open data platform, hosted by the mexican government (PROFECO).
 
-The data was acquired using the national open data platform, hosted by the mexican government.
+The phases of the project are the following ones:
 
-This project was designed to be a demonstration of the wide use of cloud frameworks and tools where every piece (the tool itself) has its own challenges in design and implementation. This ELT pipeline follows (at least) the following state of the arts tools and data engineering tendencies, framework and platforms:
+Extraction: Using python (requests) to get the data from the URL.
+Storage: Use Amazon S3 as storage destination.
+Warehousing: Use Snowflake as Data Warehouse.
+Transformation: Use DBT models to tranform data, modeling and ensure unit and generic tests.
+Orchestration: Use Airflow to orchestrate the process (use the built in astronomer-cosmos infra).
 
-Extraction: Python.
-Transformation: DBT
-Warehousing: Snowflake
-Storage: Amazon S3
-Orchestration: Airflow (astronomer-cosmos).
+## Working directory
+
+.
+├── Dockerfile
+├── README.md
+├── airflow_settings.yaml
+├── dags
+│   ├── complaints_pipeline
+│   │   ├── README.md
+│   │   ├── analyses
+│   │   ├── dbt_project.yml
+│   │   ├── macros
+│   │   ├── models
+│   │   ├── package-lock.yml
+│   │   ├── packages.yml
+│   │   ├── seeds
+│   │   ├── snapshots
+│   │   └── tests
+│   ├── exampledag.py
+│   └── task_test.py
+├── include
+├── packages.txt
+├── plugins
+├── prueba.py
+├── requirements.txt
+├── setup_infra.sql
+├── src
+│   ├── __init__.py
+│   ├── data_cleaning.py
+│   ├── data_extraction.py
+│   ├── upload_to_s3.py
+│   └── upload_to_snowflake.py
+├── tests
+│   └── dags
+│       └── test_dag_example.py
+└── utils
+    ├── __init__.py
+    ├── formats.py
+    └── snowflake_connector.py
 
 
+## How to use this project
 
-# S3 integration with snowflake
+**First steps**
+1. Be sure you have docker installed and running, as well as astronomer cli (in macOS is usually runned as **brew install astro**)
+2. Donwload the repo using git clone.
+3. Initialize an astromer cosmos project with **astro dev run**
+2. Download the dependencies using dbt deps. If you are using a .venv pls consider running **python3 -m pip install -r requirements.txt** or simply pip install -r requirements if working with older python versions.
+3. Create your profiles.yml at home/user/.dbt/profiles.yml usign the following structure:
+4. You are good to go.
+
+**S3 integration with snowflake**
 
 To create the storage integration with snowflake:
 
@@ -84,15 +131,6 @@ CREATE OR REPLACE STAGE your_external_stage_name
 7. A good practice is to confirm the stage has been succesfully linked with LIST @your_external_stage_name;
 
 
-
-
-Hot to use it:
-
-1. Donwload the repo using clone.
-2. Download the dependencies using dbt deps
-3. Create your profiles.yml at home/user/.dbt/profiles.yml usign the following structure:
-
-4. You are good to go.
 
 
 
