@@ -12,7 +12,7 @@ Orchestration: Use Airflow to orchestrate the process (use the built in astronom
 
 ## Working directory
 
-'''
+```
 ├── Dockerfile
 ├── README.md
 ├── airflow_settings.yaml
@@ -49,7 +49,7 @@ Orchestration: Use Airflow to orchestrate the process (use the built in astronom
     ├── __init__.py
     ├── formats.py
     └── snowflake_connector.py
-'''
+```
 
 ## How to use this project
 
