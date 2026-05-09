@@ -131,6 +131,15 @@ CREATE OR REPLACE STAGE your_external_stage_name
 7. A good practice is to confirm the stage has been succesfully linked with LIST @your_external_stage_name;
 
 
+**Airflow Setup**
+Remember to setup the connections to external resources once you have airflow running. 
+The providers used for this project were of course **apache-airflow-providers-amazon** and **apache-airflow-providers-slack**.
+Notice that not snowflake provider is defined, this is because I did not implemented deferrable tasks , but its a best practice to use a designed operator for this kind of tasks and of course to use a deferrable task so no worker is blocked. In other words, I used the default snowflake connector (not the hook) and pass the arguments as system variables.
+Also, notice we are using airflow taskFlow API as part of the airflow 2.0 version which I think is more sraight forward and easy to understand.
+
+
+
+
 
 
 

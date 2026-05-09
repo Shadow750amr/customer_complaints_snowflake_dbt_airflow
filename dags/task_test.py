@@ -10,7 +10,7 @@ URL = 'https://repodatos.atdt.gob.mx/api_update/profeco/quejas_buro_comercial/bu
 CSV_NAME = r'/usr/local/airflow/complaints_data.csv'
 
 
-@dag(start_date=datetime.datetime(2026, 5, 7),schedule='@daily',catchup=False)
+@dag(start_date=datetime.datetime(2026, 5, 8),schedule='@daily',catchup=False)
 def complaints_pipeline():
     @task(task_id="ejecutar_descarga")
     def descarga_archivo():
