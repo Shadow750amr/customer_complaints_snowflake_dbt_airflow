@@ -137,6 +137,19 @@ The providers used for this project were of course **apache-airflow-providers-am
 Notice that not snowflake provider is defined, this is because I did not implemented deferrable tasks , but its a best practice to use a designed operator for this kind of tasks and of course to use a deferrable task so no worker is blocked. In other words, I used the default snowflake connector (not the hook) and pass the arguments as system variables.
 Also, notice we are using airflow taskFlow API as part of the airflow 2.0 version which I think is more sraight forward and easy to understand.
 
+**Improvement areas**
+As you can see there are multiple ways to enhaced this pipeline.
+Extraction phase:
+First, extraction begins and ends in a local enviroment (recreating a cloud instance), but considering the workload and improvement in a cloud enviroment, it is better to run a serverless function like lambda.
+Storage phase:
+Like in any other object storage, there are many ways to more efficiently save this dataset (eg. like domain, underlying source or datetime). For this approach, a year-month-day mixed with a undelying source can be a more succesfull way to sotre the objects.
+Warehousing:
+When imported into snowflake Im bassically using a snowflake connector for python that uses a COPY command. Other options like EXTERNAL TABLES were considered but for this workload, but ever since these are more design for read only queries and have a lower performance, I opted to use COPY command.
+Transformation:
+By doing a quick exploration in the dbt pipeline you can realize how simple it was to transform the data. Thats because the workload was thought as a 
+
+
+
 
 
 
