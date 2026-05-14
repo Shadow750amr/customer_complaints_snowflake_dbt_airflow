@@ -144,10 +144,9 @@ First, extraction begins and ends in a local enviroment (recreating a cloud inst
 Storage phase:
 Like in any other object storage, there are many ways to more efficiently save this dataset (eg. like domain, underlying source or datetime). For this approach, a year-month-day mixed with a undelying source can be a more succesfull way to sotre the objects.
 Warehousing:
-When imported into snowflake Im bassically using a snowflake connector for python that uses a COPY command. Other options like EXTERNAL TABLES were considered but for this workload, but ever since these are more design for read only queries and have a lower performance, I opted to use COPY command.
+When imported into snowflake Im bassically using a snowflake connector for python that uses a COPY command. Other options like EXTERNAL TABLES were considered for this workload, but ever since these are more designed for read only queries and have a lower performance, I opted to use COPY command.
 Transformation:
-By doing a quick exploration in the dbt pipeline you can realize how simple it was to transform the data. Thats because the workload was thought as a 
-
+By doing a quick exploration in the dbt pipeline you can realize how simple it was to transform the data. Thats because the workload was thought as an incremental loading at first, but getting more deep into the data I realised there was not a natural key prepared for proccessing, compromising deduplication. In this scenario, I defined a load_timestamp (fecha_actualizacion) as base to use a both backfilling and overwrite strategies. Eg. If any change in past days are present, the process is really simple: delete the date(s) partition and re-execute the models.
 
 
 
